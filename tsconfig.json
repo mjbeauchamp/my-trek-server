@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+     "noEmit": true,
+     "target": "esnext",
+     "moduleDetection": "force",
+     "module": "Preserve",
+     "rewriteRelativeImportExtensions": true,
+     "erasableSyntaxOnly": true,
+     "verbatimModuleSyntax": true,
+     "strict": true,
+     "resolveJsonModule": true,
+     "allowJs": true,
+     "esModuleInterop": true,
+     "isolatedModules": true,
+  }
+} 
