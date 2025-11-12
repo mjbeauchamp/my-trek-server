@@ -3,6 +3,7 @@ import { connectDB } from "./config/db.ts";
 import commonGearRoutes from "./routes/commonGear.ts";
 import backpackingArticlesRoutes from "./routes/backpackingArticles.ts";
 import userRoutes from "./routes/user.ts";
+import userGearLists from "./routes/userGearLists.ts";
 import cors from "cors";
 import dotenv from "dotenv";
 import { auth } from "express-oauth2-jwt-bearer";
@@ -36,11 +37,24 @@ const jwtCheck = auth({
 
 app.use(express.json());
 
-app.use("/api/user", jwtCheck, userRoutes)
+app.use("/api/user", jwtCheck, userRoutes);
+
+app.use("/api/gear-lists", jwtCheck, userGearLists);
 
 app.use("/api/commonGear", commonGearRoutes);
 
 app.use("/api/backpacking-articles", backpackingArticlesRoutes);
+
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const status = err.status ? err.status : 500;
+  if (err.name === "InvalidRequestError") {
+    return res.status(status).json({ message: "Invalid Request" });
+  }
+
+  // default error
+  console.error(err);
+  res.status(status).json({ message: "Server error" });
+});
 
 
 app.listen(PORT, () => {

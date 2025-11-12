@@ -1,0 +1,71 @@
+import type { Request, Response} from 'express'
+import User from "../models/User";
+import UserGearList from '../models/UserGearList';
+
+export async function getUserGearLists(req: Request, res: Response) {
+  try {
+    const sub = req.auth?.payload.sub;
+    if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+    const user = await User.findOne({ auth0Id: sub });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const lists = await UserGearList.find({ userId: user._id })
+      .sort({ updatedAt: -1 });
+
+    res.json(lists);
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error fetching user gear lists" });
+  }
+}
+
+export async function getUserGearListById(req: Request, res: Response) {
+  try {
+    const { listId } = req.params;
+
+    if (!listId) return res.status(400).json({ message: "List ID parameter not received" });
+
+    if (!listId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: "Invalid listId" });
+    }
+
+    const sub = req.auth?.payload.sub;
+    if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+    const user = await User.findOne({ auth0Id: sub });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const list = await UserGearList.findOne({ userId: user._id, _id: listId });
+    // TODO: Deal with it if there's nothing found, or if the data is off or something
+
+    res.json(list);
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error fetching user gear lists" });
+  }
+}
+
+export async function createGearList(req: Request, res: Response) {
+  try {
+    const sub = req.auth?.payload.sub;
+    if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+    const user = await User.findOne({ auth0Id: sub });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const { listTitle, items } = req.body;
+
+    const newGearList = await UserGearList.create({
+      userId: user._id,
+      listTitle,
+      items,
+    });
+
+    res.status(201).json(newGearList);
+  } catch (err) {
+    res.status(500).json({ message: "Server error creating new gear list" });
+  }
+}

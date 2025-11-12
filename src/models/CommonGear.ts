@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ICommonGear extends Document {
-  _id: string;
   name: string;
   category?: string;
   weight?: number;
@@ -10,7 +9,6 @@ export interface ICommonGear extends Document {
 
 const CommonGearSchema: Schema = new Schema(
   {
-    _id: { type: String, required: true },
     name: { type: String, required: true },
     category: { type: String, required: false },
     weight: { type: String, required: false },
