@@ -5,6 +5,7 @@ import backpackingArticlesRoutes from "./routes/backpackingArticles.ts";
 import userRoutes from "./routes/user.ts";
 import cors from "cors";
 import dotenv from "dotenv";
+import { auth } from "express-oauth2-jwt-bearer";
 
 dotenv.config();
 
@@ -26,11 +27,16 @@ app.use(
   })
 );
 
+// Auth0 auth check middleware
+const jwtCheck = auth({
+  audience: process.env.AUTH0_AUDIENCE,
+  issuerBaseURL: process.env.AUTH0_DOMAIN,
+  tokenSigningAlg: "RS256",
+});
+
 app.use(express.json());
 
-app.use("/api/user", userRoutes)
-
-app.use("/api/user-gear-lists", commonGearRoutes);
+app.use("/api/user", jwtCheck, userRoutes)
 
 app.use("/api/commonGear", commonGearRoutes);
 
