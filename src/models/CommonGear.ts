@@ -8,7 +8,7 @@ const CommonGearSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
   },
-  { collection: "commonGear" } // explicitly link to your collection
+  { collection: "commonGear" }
 );
 
 export default mongoose.model<IGear>("CommonGear", CommonGearSchema);

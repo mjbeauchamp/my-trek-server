@@ -1,13 +1,12 @@
 import { Router } from "express";
-import CommonGear from "../models/CommonGear.ts";
+import BackpackingArticle from "../models/BackpackingArticles.ts";
 
 const router = Router();
 
-// Fetch list of commonly used gear
+// Fetch all Backpacking 101 articles 
 router.get("/", async (req, res) => {
   try {
-    const gear = await CommonGear.find();
-    console.log(gear);
+    const gear = await BackpackingArticle.find();
     res.json(gear);
   } catch (err) {
     console.error(err);
