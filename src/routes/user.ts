@@ -1,12 +1,12 @@
 import { Router } from "express";
-import BackpackingArticle from "../models/BackpackingArticles.ts";
+import User from "../models/User.ts";
 
 const router = Router();
 
-// Fetch all Backpacking 101 articles 
+// Fetch user data
 router.get("/", async (req, res) => {
   try {
-    const gear = await BackpackingArticle.find();
+    const gear = await User.find();
     res.json(gear);
   } catch (err) {
     console.error(err);

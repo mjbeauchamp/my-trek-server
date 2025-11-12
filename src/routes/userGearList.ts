@@ -5,7 +5,7 @@ import UserGearList from "../models/UserGearList.js";
 
 const router = Router();
 
-// ✅ Auth0 middleware
+// Auth0 middleware
 const jwtCheck = auth({
   audience: process.env.AUTH0_AUDIENCE,
   issuerBaseURL: process.env.AUTH0_DOMAIN,

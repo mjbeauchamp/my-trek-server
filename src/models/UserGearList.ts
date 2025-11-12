@@ -11,7 +11,7 @@ export interface IGearItem {
 }
 
 export interface IGearList extends Document {
-    userId: string; // Auth0 user ID
+    userId: string; 
     items: IGearItem[];
     }
 

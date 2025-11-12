@@ -1,7 +1,8 @@
 import express from "express";
 import { connectDB } from "./config/db.ts";
-import commonGearRoutes from "./routes/commonGear.routes.ts";
-import articlesRoutes from "./routes/articles.routes.ts";
+import commonGearRoutes from "./routes/commonGear.ts";
+import backpackingArticlesRoutes from "./routes/backpackingArticles.ts";
+import userRoutes from "./routes/user.ts";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -27,11 +28,13 @@ app.use(
 
 app.use(express.json());
 
-app.use("/api/commonGear", commonGearRoutes);
+app.use("/api/user", userRoutes)
 
 app.use("/api/user-gear-lists", commonGearRoutes);
 
-app.use("/api/backpacking-articles", articlesRoutes);
+app.use("/api/commonGear", commonGearRoutes);
+
+app.use("/api/backpacking-articles", backpackingArticlesRoutes);
 
 
 app.listen(PORT, () => {
