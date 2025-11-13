@@ -3,16 +3,12 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ICommonGear extends Document {
   name: string;
   category?: string;
-  weight?: number;
-  notes?: string;
 }
 
 const CommonGearSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
     category: { type: String, required: false },
-    weight: { type: String, required: false },
-    notes: { type: String, required: false },
   },
   { collection: "commonGear" }
 );

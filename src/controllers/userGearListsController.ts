@@ -1,4 +1,5 @@
 import type { Request, Response} from 'express'
+import mongoose from 'mongoose';
 import User from "../models/User";
 import UserGearList from '../models/UserGearList';
 
@@ -49,31 +50,63 @@ export async function getUserGearListById(req: Request, res: Response) {
 }
 
 export async function createGearList(req: Request, res: Response) {
-  try {
-    const sub = req.auth?.payload.sub;
-    if (!sub) return res.status(401).json({ message: "Unauthorized" });
+    try {
+        const sub = req.auth?.payload.sub;
+        if (!sub) return res.status(401).json({ message: "Unauthorized" });
 
-    const user = await User.findOne({ auth0Id: sub });
-    if (!user) return res.status(404).json({ message: "User not found" });
+        const user = await User.findOne({ auth0Id: sub });
+        if (!user) return res.status(404).json({ message: "User not found" });
 
-    const { listTitle, listDescription, items } = req.body;
+        const { listTitle, listDescription, items } = req.body;
 
-    const newGearList = await UserGearList.create({
-      userId: user._id,
-      listTitle,
-      listDescription,
-      items,
-    });
+        const newGearList = await UserGearList.create({
+        userId: user._id,
+        listTitle,
+        listDescription,
+        items,
+        });
 
-    const gearListData = {
-        listTitle: newGearList.listTitle,
-        listDescription: newGearList.listDescription,
-        items: newGearList.items,
-        _id: newGearList._id
+        const gearListData = {
+            listTitle: newGearList.listTitle,
+            listDescription: newGearList.listDescription,
+            items: newGearList.items,
+            _id: newGearList._id
+        }
+
+        res.status(201).json(gearListData);
+    } catch (err) {
+        res.status(500).json({ message: "Server error creating new gear list" });
     }
+}
 
-    res.status(201).json(gearListData);
-  } catch (err) {
-    res.status(500).json({ message: "Server error creating new gear list" });
-  }
+export async function addItemToGearList(req: Request, res: Response) {
+    try {
+        const sub = req.auth?.payload.sub;
+        if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+        const user = await User.findOne({ auth0Id: sub });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const {listId} = req.params;
+        const { itemData } = req.body;
+
+        //TODO: Validate and clean up itemData, check for threats etc
+
+        if (!mongoose.Types.ObjectId.isValid(listId)) {
+            return res.status(400).json({ message: "Invalid listId" });
+        }
+
+        const list = await UserGearList.findOne({ _id: listId, userId: user._id });
+
+        if (!list) return res.status(404).json({ message: "List not found" });
+
+        list.items.push(itemData);
+
+        await list.save();
+
+        const newItem = list.items[list.items.length - 1];
+        return res.status(201).json(newItem);
+    } catch (err) {
+        res.status(500).json({ message: "Server error adding item to gear list" });
+    }
 }

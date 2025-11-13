@@ -16,14 +16,17 @@ export interface IGearList extends Document {
   items: IGearItem[];
 }
 
-const GearItemSchema = new Schema({
+const GearItemSchema = new Schema(
+  {
     name: { type: String, required: true },
     category: { type: String },
     notes: { type: String },
     quantityNeeded: { type: Number, default: 1},
-    quantityToPack: { type: Number, default: 0 },
+    quantityToPack: { type: Number, default: 1 },
     quantityToShop: { type: Number, default: 0 },
-});
+  },
+  { _id: true }
+);
 
 const GearListSchema = new Schema(
   {
