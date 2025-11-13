@@ -56,15 +56,23 @@ export async function createGearList(req: Request, res: Response) {
     const user = await User.findOne({ auth0Id: sub });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const { listTitle, items } = req.body;
+    const { listTitle, listDescription, items } = req.body;
 
     const newGearList = await UserGearList.create({
       userId: user._id,
       listTitle,
+      listDescription,
       items,
     });
 
-    res.status(201).json(newGearList);
+    const gearListData = {
+        listTitle: newGearList.listTitle,
+        listDescription: newGearList.listDescription,
+        items: newGearList.items,
+        listId: newGearList._id
+    }
+
+    res.status(201).json(gearListData);
   } catch (err) {
     res.status(500).json({ message: "Server error creating new gear list" });
   }

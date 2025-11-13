@@ -12,6 +12,7 @@ export interface IGearItem {
 export interface IGearList extends Document {
   userId: Types.ObjectId; 
   listTitle: string;
+  listDescription: string;
   items: IGearItem[];
 }
 
@@ -28,6 +29,7 @@ const GearListSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     listTitle: { type: String, required: true },
+    listDescription: { type: String, required: false },
     items: [GearItemSchema],
   },
   { timestamps: true, collection: 'userGearLists' }
