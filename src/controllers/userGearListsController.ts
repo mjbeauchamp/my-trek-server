@@ -69,7 +69,7 @@ export async function createGearList(req: Request, res: Response) {
         listTitle: newGearList.listTitle,
         listDescription: newGearList.listDescription,
         items: newGearList.items,
-        listId: newGearList._id
+        _id: newGearList._id
     }
 
     res.status(201).json(gearListData);
