@@ -79,6 +79,39 @@ export async function createGearList(req: Request, res: Response) {
     }
 }
 
+export async function updateGearListMetadata(req: Request, res: Response) {
+    try {
+        const sub = req.auth?.payload.sub;
+        if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+        const user = await User.findOne({ auth0Id: sub });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const { listId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(listId)) {
+            return res.status(400).json({ message: "Invalid gear list ID" });
+        }
+
+        const { listTitle, listDescription } = req.body;
+        
+
+        const updatedList = await UserGearList.findOneAndUpdate(
+            { _id: listId, userId: user._id },
+            { $set: {listTitle, listDescription} },
+            { new: true }
+        );
+
+        if (!updatedList) {
+            throw new Error("List not found or not authorized");
+        }
+
+        return res.status(200).json(updatedList);
+    } catch (err) {
+        res.status(500).json({ message: "Server error updating gear list" });
+    }
+}
+
 export async function deleteGearList(req: Request, res: Response) {
     try {
         const sub = req.auth?.payload.sub;
