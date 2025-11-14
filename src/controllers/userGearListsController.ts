@@ -79,6 +79,32 @@ export async function createGearList(req: Request, res: Response) {
     }
 }
 
+export async function deleteGearList(req: Request, res: Response) {
+    try {
+        const sub = req.auth?.payload.sub;
+        if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+        const user = await User.findOne({ auth0Id: sub });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const { listId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(listId)) {
+            return res.status(400).json({ message: "Invalid gear list ID" });
+        }
+
+        const deletedList = await UserGearList.findByIdAndDelete(listId);
+
+        if (!deletedList) {
+        return res.status(404).json({ message: "List not found" });
+        }
+
+        return res.status(200).json({ message: "List deleted successfully!" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error when deleting gear list" });
+    }
+}
+
 export async function addItemToGearList(req: Request, res: Response) {
     try {
         const sub = req.auth?.payload.sub;
@@ -108,5 +134,77 @@ export async function addItemToGearList(req: Request, res: Response) {
         return res.status(201).json(newItem);
     } catch (err) {
         res.status(500).json({ message: "Server error adding item to gear list" });
+    }
+}
+
+export async function updateGearListItem(req: Request, res: Response) {
+    try {
+        const sub = req.auth?.payload.sub;
+        if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+        const user = await User.findOne({ auth0Id: sub });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const {listId, itemId} = req.params;
+        const { itemData } = req.body;
+
+        //TODO: Validate and clean up itemData, check for threats etc
+
+        if (!mongoose.Types.ObjectId.isValid(listId) || !mongoose.Types.ObjectId.isValid(itemId)) {
+            return res.status(400).json({ message: "Invalid database object ID" });
+        }
+
+        const list = await UserGearList.findOne({ _id: listId, userId: user._id });
+
+        if (!list) return res.status(404).json({ message: "List not found" });
+
+        const updatedList = await UserGearList.findOneAndUpdate(
+            { _id: listId, userId: user._id, "items._id": itemId },
+            { $set: { "items.$": itemData } },
+            { new: true }
+        );
+
+        if (!updatedList) {
+            return res.status(404).json({ message: "List or item not found" });
+        }
+
+        return res.status(200).json(updatedList);
+    } catch (err) {
+        res.status(500).json({ message: "Server error updating gear list item" });
+    }
+}
+
+export async function deleteItemFromGearList(req: Request, res: Response) {
+    try {
+        const sub = req.auth?.payload.sub;
+        if (!sub) return res.status(401).json({ message: "Unauthorized" });
+
+        const user = await User.findOne({ auth0Id: sub });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const { listId, itemId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(itemId) || !mongoose.Types.ObjectId.isValid(listId)) {
+            return res.status(400).json({ message: "Invalid database object ID" });
+        }
+
+        const result = await UserGearList.updateOne(
+            { _id: listId },
+            { $pull: { items: { _id: itemId } } }
+        );
+
+        let message = '';
+
+        if (result.modifiedCount === 0) {
+            message = "No item deleted — maybe list or item not found";
+            console.log("No item deleted — maybe list or item not found");
+        } else {
+            message = "Item deleted successfully!";
+            console.log("Item deleted successfully!");
+        }
+
+        return res.status(200).json({ message });
+    } catch (err) {
+        res.status(500).json({ message: "Server error deleting item from gear list" });
     }
 }
