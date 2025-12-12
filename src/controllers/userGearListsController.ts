@@ -191,9 +191,15 @@ export async function updateGearListItem(req: Request, res: Response) {
 
         if (!list) return res.status(404).json({ message: "List not found" });
 
+        const updates: any = {};
+
+        for (const [key, value] of Object.entries(itemData)) {
+            updates[`items.$.${key}`] = value;
+        }        
+
         const updatedList = await UserGearList.findOneAndUpdate(
             { _id: listId, userId: user._id, "items._id": itemId },
-            { $set: { "items.$": itemData } },
+            { $set: updates },
             { new: true }
         );
 
