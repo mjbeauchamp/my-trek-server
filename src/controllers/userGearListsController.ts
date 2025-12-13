@@ -1,7 +1,7 @@
 import type { Request, Response} from 'express'
 import mongoose from 'mongoose';
-import User from "../models/User";
-import UserGearList from '../models/UserGearList';
+import User from "../models/User.js";
+import UserGearList from '../models/UserGearList.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
   try {

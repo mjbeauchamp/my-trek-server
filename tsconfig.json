@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
-     "noEmit": true,
-     "target": "esnext",
-     "moduleDetection": "force",
-     "module": "Preserve",
-     "rewriteRelativeImportExtensions": true,
-     "erasableSyntaxOnly": true,
-     "verbatimModuleSyntax": true,
-     "strict": true,
-     "resolveJsonModule": true,
-     "allowJs": true,
-     "esModuleInterop": true,
-     "isolatedModules": true,
-  }
-} 
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "rootDir": "src",
+    "outDir": "dist",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["src"]
+}

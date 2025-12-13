@@ -9,7 +9,7 @@ import {
     updateGearListItem,
     deleteItemFromGearList
 
-} from "../controllers/userGearListsController.ts";
+} from "../controllers/userGearListsController.js";
 
 
 const router = Router();

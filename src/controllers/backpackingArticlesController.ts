@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import BackpackingArticle from "../models/BackpackingArticle";
+import BackpackingArticle from "../models/BackpackingArticle.js";
 
 export async function getAllArticles(req: Request, res: Response) {
   try {

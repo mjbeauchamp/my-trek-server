@@ -1,5 +1,5 @@
 import type { Request, Response} from 'express'
-import User from "../models/User";
+import User from "../models/User.js";
 
 export async function getOrCreateUser(req: Request, res: Response) {
   try {

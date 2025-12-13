@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCommonGearList } from "../controllers/commonGearController.ts";
+import { getCommonGearList } from "../controllers/commonGearController.js";
 
 const router = Router();
 

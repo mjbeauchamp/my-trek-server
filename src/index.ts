@@ -1,9 +1,9 @@
 import express from "express";
-import { connectDB } from "./config/db.ts";
-import commonGearRoutes from "./routes/commonGear.ts";
-import backpackingArticlesRoutes from "./routes/backpackingArticles.ts";
-import userRoutes from "./routes/user.ts";
-import userGearLists from "./routes/userGearLists.ts";
+import { connectDB } from "./config/db.js";
+import commonGearRoutes from "./routes/commonGear.js";
+import backpackingArticlesRoutes from "./routes/backpackingArticles.js";
+import userRoutes from "./routes/user.js";
+import userGearLists from "./routes/userGearLists.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import { auth } from "express-oauth2-jwt-bearer";

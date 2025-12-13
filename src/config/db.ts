@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export const connectDB = async () => {
     const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) {
-    throw new Error("MONGO_URI is not set in .env");
+      throw new Error("MONGO_URI is not set in .env");
     }
 
   try {
@@ -11,6 +11,7 @@ export const connectDB = async () => {
     console.log("MongoDB connected");
   } catch (err) {
     console.error("MongoDB connection error:", err);
-    process.exit(1); // stop server if DB connection fails
+    // stop server if DB connection fails
+    process.exit(1); 
   }
 };

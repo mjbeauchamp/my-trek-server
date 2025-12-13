@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import CommonGear from "../models/CommonGear";
+import CommonGear from "../models/CommonGear.js";
 
 export async function getCommonGearList(req: Request, res: Response) {
     try {
