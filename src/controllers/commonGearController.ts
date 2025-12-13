@@ -1,5 +1,5 @@
-import type { Request, Response } from "express";
-import CommonGear from "../models/CommonGear.js";
+import type { Request, Response } from 'express';
+import CommonGear from '../models/CommonGear.js';
 
 export async function getCommonGearList(req: Request, res: Response) {
     try {
@@ -7,6 +7,6 @@ export async function getCommonGearList(req: Request, res: Response) {
         res.json(gear);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: 'Server error' });
     }
 }
