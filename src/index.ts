@@ -8,6 +8,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { auth } from "express-oauth2-jwt-bearer";
 
+interface AppError extends Error {
+  status?: number;
+}
+
 dotenv.config();
 
 const app = express();
@@ -45,7 +49,7 @@ app.use("/api/commonGear", commonGearRoutes);
 
 app.use("/api/backpacking-articles", backpackingArticlesRoutes);
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: AppError, req: express.Request, res: express.Response) => {
   const status = err.status ? err.status : 500;
   if (err.name === "InvalidRequestError") {
     return res.status(status).json({ message: "Invalid Request" });

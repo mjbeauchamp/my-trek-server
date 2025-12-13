@@ -75,6 +75,7 @@ export async function createGearList(req: Request, res: Response) {
 
         res.status(201).json(gearListData);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error creating new gear list" });
     }
 }
@@ -108,6 +109,7 @@ export async function updateGearListMetadata(req: Request, res: Response) {
 
         return res.status(200).json(updatedList);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error updating gear list" });
     }
 }
@@ -134,6 +136,7 @@ export async function deleteGearList(req: Request, res: Response) {
 
         return res.status(200).json({ message: "List deleted successfully!" });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error when deleting gear list" });
     }
 }
@@ -166,6 +169,7 @@ export async function addItemToGearList(req: Request, res: Response) {
         const newItem = list.items[list.items.length - 1];
         return res.status(201).json(newItem);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error adding item to gear list" });
     }
 }
@@ -191,10 +195,12 @@ export async function updateGearListItem(req: Request, res: Response) {
 
         if (!list) return res.status(404).json({ message: "List not found" });
 
-        const updates: any = {};
+        const updates: Record<string, string | number> = {};
 
         for (const [key, value] of Object.entries(itemData)) {
-            updates[`items.$.${key}`] = value;
+            if (typeof value === "string" || typeof value === "number") {
+                updates[`items.$.${key}`] = value;
+            }
         }        
 
         const updatedList = await UserGearList.findOneAndUpdate(
@@ -209,6 +215,7 @@ export async function updateGearListItem(req: Request, res: Response) {
 
         return res.status(200).json(updatedList);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error updating gear list item" });
     }
 }
@@ -244,6 +251,7 @@ export async function deleteItemFromGearList(req: Request, res: Response) {
 
         return res.status(200).json({ message });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error deleting item from gear list" });
     }
 }

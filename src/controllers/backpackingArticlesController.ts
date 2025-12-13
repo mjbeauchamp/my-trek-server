@@ -9,7 +9,7 @@ export async function getAllArticles(req: Request, res: Response) {
     console.error(err);
     res.status(500).json({ message: "Server error fetching backpacking articles" });
   }
-}
+};
 
 export async function getArticleById(req: Request, res: Response) {
   try {

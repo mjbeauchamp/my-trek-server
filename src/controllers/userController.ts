@@ -25,6 +25,7 @@ export async function getOrCreateUser(req: Request, res: Response) {
 
     res.json(userData);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error fetching user" });
   }
 }
