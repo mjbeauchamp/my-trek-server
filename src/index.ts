@@ -1,5 +1,5 @@
 import express from 'express';
-import { connectDB } from './config/db.js';
+import { connectDB } from './database/db.js';
 import commonGearRoutes from './routes/commonGear.js';
 import backpackingArticlesRoutes from './routes/backpackingArticles.js';
 import userRoutes from './routes/user.js';
@@ -16,8 +16,6 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-
-connectDB();
 
 const allowedOrigin =
     process.env.NODE_ENV === 'development'
@@ -49,15 +47,28 @@ app.use('/api/commonGear', commonGearRoutes);
 
 app.use('/api/backpacking-articles', backpackingArticlesRoutes);
 
-app.use((err: AppError, req: express.Request, res: express.Response) => {
-    const status = err.status ? err.status : 500;
-    if (err.name === 'InvalidRequestError') {
-        return res.status(status).json({ message: 'Invalid Request' });
-    }
-    console.error(err);
-    res.status(status).json({ message: 'Server error' });
-});
+app.use(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (err: AppError, req: express.Request, res: express.Response, next: express.NextFunction) => {
+        const status = err.status ? err.status : 500;
+        if (err.name === 'InvalidRequestError') {
+            return res.status(status).json({ message: 'Invalid Request' });
+        }
+        console.error(err);
+        res.status(status).json({ message: 'Server error' });
+    },
+);
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('There was an error connecting to database: ', error);
+        process.exit(1);
+    }
+};
+
+startServer();
