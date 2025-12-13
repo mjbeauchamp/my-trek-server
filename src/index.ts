@@ -54,8 +54,6 @@ app.use((err: AppError, req: express.Request, res: express.Response) => {
     if (err.name === 'InvalidRequestError') {
         return res.status(status).json({ message: 'Invalid Request' });
     }
-
-    // default error
     console.error(err);
     res.status(status).json({ message: 'Server error' });
 });
