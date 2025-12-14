@@ -6,7 +6,7 @@ export async function getCommonGearList(req: Request, res: Response) {
         const gear = await CommonGear.find();
         res.json(gear);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error fetching common gear items:', err);
+        res.status(500).json({ message: 'Server error fetching common gear items' });
     }
 }
