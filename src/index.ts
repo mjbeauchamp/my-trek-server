@@ -1,4 +1,6 @@
 import express from 'express';
+import mongoSanitize from 'express-mongo-sanitize';
+
 import { connectDB } from './database/db.js';
 import commonGearRoutes from './routes/commonGear.js';
 import backpackingArticlesRoutes from './routes/backpackingArticles.js';
@@ -38,6 +40,15 @@ const jwtCheck = auth({
 });
 
 app.use(express.json());
+app.use((req, res, next) => {
+    if (req.body) {
+        mongoSanitize.sanitize(req.body);
+    }
+    if (req.params) {
+        mongoSanitize.sanitize(req.params);
+    }
+    next();
+});
 
 app.use('/api/user', jwtCheck, userRoutes);
 
