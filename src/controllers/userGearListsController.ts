@@ -1,7 +1,10 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import validator from 'validator';
+
 import User from '../models/User.js';
 import UserGearList from '../models/UserGearList.js';
+import { IGearItem } from '../models/UserGearList.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
     try {
@@ -54,14 +57,34 @@ export async function createGearList(req: Request, res: Response) {
         const user = await User.findOne({ auth0Id: sub });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
+        const userId = user._id?.toString();
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
         const { listTitle, listDescription, items } = req.body;
 
-        const newGearList = await UserGearList.create({
-            userId: user._id,
+        //TODO: Validate all data before use
+
+        const newList: Partial<{
+            userId: string;
+            listTitle: string;
+            listDescription?: string;
+            items: IGearItem[];
+        }> = {
+            userId,
             listTitle,
             listDescription,
-            items,
-        });
+            items: [],
+        };
+
+        if (items && Array.isArray(items)) {
+            newList.items = items;
+        } else {
+            newList.items = [];
+        }
+
+        const newGearList = await UserGearList.create(newList);
 
         const gearListData = {
             listTitle: newGearList.listTitle,
@@ -93,9 +116,48 @@ export async function updateGearListMetadata(req: Request, res: Response) {
 
         const { listTitle, listDescription } = req.body;
 
+        if (!listTitle)
+            return res
+                .status(400)
+                .json({ message: 'Missing list title data. List title is required.' });
+
+        const updateData: Partial<{ listTitle: string; listDescription?: string }> = {};
+
+        // Validate and sanitize list title
+        if (typeof listTitle !== 'string') {
+            console.warn(`List title invalid: listTitle=${listTitle}`);
+            return res.status(400).json({ message: 'Invalid list title format' });
+        }
+        if (listTitle.length > 60) {
+            console.warn(`List title length invalid: length=${listTitle.length}`);
+            return res.status(400).json({ message: 'List title too long' });
+        }
+        const normalizedListTitle = validator.escape(validator.trim(listTitle));
+
+        if (!normalizedListTitle) {
+            console.warn(`List title format invalid: listTitle=${listTitle}`);
+            return res.status(400).json({ message: 'List title formatting incorrect' });
+        }
+
+        updateData.listTitle = normalizedListTitle;
+
+        // Validate and sanitize list description
+        if (listDescription !== undefined) {
+            if (typeof listDescription !== 'string') {
+                console.warn(`User list description invalid: description=${listDescription}`);
+                return res.status(400).json({ message: 'Invalid list description format' });
+            }
+            if (listDescription.length > 250) {
+                console.warn(`List description length invalid: length=${listDescription.length}`);
+                return res.status(400).json({ message: 'List description too long' });
+            }
+            const normalizedListDescription = validator.escape(validator.trim(listDescription));
+            updateData.listDescription = normalizedListDescription ? normalizedListDescription : '';
+        }
+
         const updatedList = await UserGearList.findOneAndUpdate(
             { _id: listId, userId: user._id },
-            { $set: { listTitle, listDescription } },
+            { $set: updateData },
             { new: true },
         );
 
@@ -156,7 +218,7 @@ export async function addItemToGearList(req: Request, res: Response) {
 
         const list = await UserGearList.findOne({ _id: listId, userId: user._id });
 
-        if (!list) return res.status(404).json({ message: 'List not found' });
+        if (!list?.items) return res.status(404).json({ message: 'List not found' });
 
         list.items.push(itemData);
 

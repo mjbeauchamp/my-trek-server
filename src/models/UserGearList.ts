@@ -12,7 +12,7 @@ export interface IGearItem {
 export interface IGearList extends Document {
     userId: Types.ObjectId;
     listTitle: string;
-    listDescription: string;
+    listDescription?: string;
     items: IGearItem[];
 }
 
