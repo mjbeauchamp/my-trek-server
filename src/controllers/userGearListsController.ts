@@ -5,7 +5,10 @@ import validator from 'validator';
 import User from '../models/User.js';
 import UserGearList from '../models/UserGearList.js';
 import { IGearItemInput } from '../models/UserGearList.js';
-import { sanitizeUserGearItem } from '../utils/validators/gearItemValidator.js';
+import {
+    sanitizeNewGearItem,
+    sanitizePartialGearItem,
+} from '../utils/validators/gearItemValidator.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
     try {
@@ -216,7 +219,7 @@ export async function addItemToGearList(req: Request, res: Response) {
             return res.status(400).json({ message: 'Invalid listId' });
         }
 
-        const sanitizedData = sanitizeUserGearItem(itemData);
+        const sanitizedData = sanitizeNewGearItem(itemData);
 
         if (!sanitizedData.success) {
             console.warn(
@@ -272,7 +275,7 @@ export async function updateGearListItem(req: Request, res: Response) {
         }
         const { itemData } = req.body;
 
-        const sanitizedData = sanitizeUserGearItem(itemData);
+        const sanitizedData = sanitizePartialGearItem(itemData);
 
         if (!sanitizedData.success) {
             console.warn(
