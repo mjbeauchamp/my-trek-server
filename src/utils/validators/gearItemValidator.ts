@@ -1,0 +1,91 @@
+import validator from 'validator';
+import { IGearItemInput } from '../../models/UserGearList.js';
+
+export function isUserGearItem(item: IGearItemInput) {
+    return (
+        typeof item.name === 'string' &&
+        (item.category === undefined || typeof item.category === 'string') &&
+        (item.quantityNeeded === undefined || typeof item.quantityNeeded === 'number') &&
+        (item.quantityToPack === undefined || typeof item.quantityToPack === 'number') &&
+        (item.quantityToShop === undefined || typeof item.quantityToShop === 'number') &&
+        (item.notes === undefined || typeof item.notes === 'string')
+    );
+}
+
+export function sanitizeUserGearItem(
+    input: unknown,
+): { success: true; data: IGearItemInput } | { success: false; error: string } {
+    if (!input || typeof input !== 'object') {
+        return { success: false, error: 'Invalid gear item payload.' };
+    }
+
+    const item = input as Record<string, unknown>;
+
+    // Required: name
+    if (typeof item.name !== 'string') {
+        return { success: false, error: 'Item name is required.' };
+    }
+
+    try {
+        const name = validator.escape(validator.trim(item.name));
+        if (!name || name.length > 60) {
+            return { success: false, error: 'Item name is invalid or too long.' };
+        }
+
+        // Optional: category
+        let category = '';
+        if (item.category !== undefined) {
+            if (typeof item.category !== 'string') {
+                return { success: false, error: 'Invalid category format.' };
+            }
+            category = validator.escape(validator.trim(item.category));
+            if (category.length > 300) {
+                return { success: false, error: 'Gear item category is too long.' };
+            }
+        }
+
+        // Optional: notes
+        let notes = '';
+        if (item.notes !== undefined) {
+            if (typeof item.notes !== 'string') {
+                return { success: false, error: 'Invalid gear item note format.' };
+            }
+            notes = validator.escape(validator.trim(item.notes));
+            if (notes.length > 500) {
+                return { success: false, error: 'Gear item note is too long.' };
+            }
+        }
+
+        // Optional numeric fields
+        const sanitizeQuantity = (value: unknown, field: string) => {
+            if (typeof value !== 'number' || !Number.isInteger(value)) {
+                throw new Error(`${field} must be an integer`);
+            }
+            if (value < 0 || value > 1000) {
+                throw new Error(`${field} out of range`);
+            }
+            return value;
+        };
+
+        const quantityNeeded = sanitizeQuantity(item.quantityNeeded, 'Quantity Needed value');
+        const quantityToPack = sanitizeQuantity(item.quantityToPack, 'Quantity to Pack value');
+        const quantityToShop = sanitizeQuantity(item.quantityToShop, 'Quantity to Shop value');
+
+        return {
+            success: true,
+            data: {
+                name,
+                category,
+                quantityNeeded,
+                quantityToPack,
+                quantityToShop,
+                notes,
+            },
+        };
+    } catch (err) {
+        return {
+            success: false,
+            error: err instanceof Error ? err.message : 'Invalid gear item field',
+        };
+    }
+}

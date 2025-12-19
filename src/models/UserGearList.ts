@@ -1,12 +1,18 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-export interface IGearItem {
+// Gear item data sent from frontend
+export interface IGearItemInput {
     name: string;
     category?: string;
     notes?: string;
     quantityNeeded?: number;
     quantityToPack?: number;
     quantityToShop?: number;
+}
+
+// Gear item data as stored in DB
+export interface IGearItem extends IGearItemInput {
+    _id: Types.ObjectId;
 }
 
 export interface IGearList extends Document {
@@ -18,6 +24,7 @@ export interface IGearList extends Document {
 
 const GearItemSchema = new Schema(
     {
+        _id: { type: Schema.Types.ObjectId, auto: true },
         name: { type: String, required: true },
         category: { type: String },
         notes: { type: String },

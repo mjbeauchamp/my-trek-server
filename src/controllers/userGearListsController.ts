@@ -4,7 +4,8 @@ import validator from 'validator';
 
 import User from '../models/User.js';
 import UserGearList from '../models/UserGearList.js';
-import { IGearItem } from '../models/UserGearList.js';
+import { IGearItemInput } from '../models/UserGearList.js';
+import { sanitizeUserGearItem } from '../utils/validators/gearItemValidator.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
     try {
@@ -70,7 +71,7 @@ export async function createGearList(req: Request, res: Response) {
             userId: string;
             listTitle: string;
             listDescription?: string;
-            items: IGearItem[];
+            items: IGearItemInput[];
         }> = {
             userId,
             listTitle,
@@ -210,21 +211,41 @@ export async function addItemToGearList(req: Request, res: Response) {
         const { listId } = req.params;
         const { itemData } = req.body;
 
-        //TODO: Validate and clean up itemData, check for threats etc
-
         if (!mongoose.Types.ObjectId.isValid(listId)) {
+            console.warn('listId param is not a valid ObjectId type at addItemToGearList.');
             return res.status(400).json({ message: 'Invalid listId' });
         }
 
-        const list = await UserGearList.findOne({ _id: listId, userId: user._id });
+        const sanitizedData = sanitizeUserGearItem(itemData);
 
-        if (!list?.items) return res.status(404).json({ message: 'List not found' });
+        if (!sanitizedData.success) {
+            console.warn(
+                `New gear item data was invalid in addItemToGearList: `,
+                sanitizedData.error,
+            );
+            return res.status(400).json({
+                message: `There was a problem adding this item to the gear list: ${sanitizedData.error}`,
+            });
+        }
 
-        list.items.push(itemData);
+        const updatedList = await UserGearList.findOneAndUpdate(
+            { _id: listId, userId: user._id },
+            { $push: { items: sanitizedData.data } },
+            { new: true },
+        );
 
-        await list.save();
+        if (!updatedList) {
+            return res.status(404).json({
+                message: 'Gear list not found',
+            });
+        }
 
-        const newItem = list.items[list.items.length - 1];
+        if (!Array.isArray(updatedList.items)) {
+            console.error('Gear list items field corrupted', listId);
+            return res.status(500).json({ message: 'Gear list data corrupted' });
+        }
+
+        const newItem = updatedList.items[updatedList.items.length - 1];
         return res.status(201).json(newItem);
     } catch (err) {
         console.error(err);
@@ -241,24 +262,36 @@ export async function updateGearListItem(req: Request, res: Response) {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const { listId, itemId } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(listId)) {
+            console.warn('listId param is not a valid ObjectId type at updateGearListItem.');
+            return res.status(400).json({ message: 'Invalid listId' });
+        }
+        if (!mongoose.Types.ObjectId.isValid(itemId)) {
+            console.warn('itemId param is not a valid ObjectId type at updateGearListItem.');
+            return res.status(400).json({ message: 'Invalid itemId' });
+        }
         const { itemData } = req.body;
 
-        //TODO: Validate and clean up itemData, check for threats etc
+        const sanitizedData = sanitizeUserGearItem(itemData);
 
-        if (!mongoose.Types.ObjectId.isValid(listId) || !mongoose.Types.ObjectId.isValid(itemId)) {
-            return res.status(400).json({ message: 'Invalid database object ID' });
+        if (!sanitizedData.success) {
+            console.warn(
+                `Updated gear item data was invalid in updateGearListItem: `,
+                sanitizedData.error,
+            );
+            return res.status(400).json({
+                message: `There was a problem updating this item in the gear list: ${sanitizedData.error}`,
+            });
         }
-
-        const list = await UserGearList.findOne({ _id: listId, userId: user._id });
-
-        if (!list) return res.status(404).json({ message: 'List not found' });
 
         const updates: Record<string, string | number> = {};
 
-        for (const [key, value] of Object.entries(itemData)) {
-            if (typeof value === 'string' || typeof value === 'number') {
-                updates[`items.$.${key}`] = value;
-            }
+        for (const [key, value] of Object.entries(sanitizedData.data)) {
+            updates[`items.$.${key}`] = value;
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No valid fields to update.' });
         }
 
         const updatedList = await UserGearList.findOneAndUpdate(
