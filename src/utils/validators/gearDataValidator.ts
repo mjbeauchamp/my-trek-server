@@ -3,6 +3,8 @@ import { IGearItemInput } from '../../models/UserGearList.js';
 
 export function isUserGearItem(item: IGearItemInput) {
     return (
+        typeof item === 'object' &&
+        item !== null &&
         typeof item.name === 'string' &&
         (item.category === undefined || typeof item.category === 'string') &&
         (item.quantityNeeded === undefined || typeof item.quantityNeeded === 'number') &&
@@ -10,6 +12,20 @@ export function isUserGearItem(item: IGearItemInput) {
         (item.quantityToShop === undefined || typeof item.quantityToShop === 'number') &&
         (item.notes === undefined || typeof item.notes === 'string')
     );
+}
+
+export function isArrayOfGearLists(listArray: unknown) {
+    if (!listArray || !Array.isArray(listArray)) {
+        return false;
+    }
+
+    return listArray.every((list: any) => {
+        return (
+            typeof list.listTitle === 'string' &&
+            Array.isArray(list.items) &&
+            list.items.every((item: any) => isUserGearItem(item))
+        );
+    });
 }
 
 export function sanitizeNewGearItem(

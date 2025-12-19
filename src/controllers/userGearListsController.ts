@@ -8,7 +8,8 @@ import { IGearItemInput } from '../models/UserGearList.js';
 import {
     sanitizeNewGearItem,
     sanitizePartialGearItem,
-} from '../utils/validators/gearItemValidator.js';
+    isArrayOfGearLists,
+} from '../utils/validators/gearDataValidator.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
     try {
@@ -19,6 +20,17 @@ export async function getUserGearLists(req: Request, res: Response) {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const lists = await UserGearList.find({ userId: user._id }).sort({ updatedAt: -1 });
+
+        if (!lists) {
+            return res.status(404).json({
+                message: 'Gear list not found',
+            });
+        }
+
+        if (!isArrayOfGearLists(lists)) {
+            console.error('Gear lists data is corrupted');
+            return res.status(500).json({ message: 'Gear list data corrupted' });
+        }
 
         res.json(lists);
     } catch (err) {
