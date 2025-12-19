@@ -1,12 +1,11 @@
 import type { Request, Response } from 'express';
 import BackpackingArticle from '../models/BackpackingArticle.js';
-import { isArrayOfArticles } from '../utils/validators/backpackingArticleValidator.js';
 
 export async function getAllArticles(req: Request, res: Response) {
     try {
         const articles = await BackpackingArticle.find();
 
-        if (!isArrayOfArticles(articles)) {
+        if (!Array.isArray(articles)) {
             console.error('Article list data is in an unexpected format');
             return res
                 .status(500)

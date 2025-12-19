@@ -8,7 +8,6 @@ import { IGearItemInput } from '../models/UserGearList.js';
 import {
     sanitizeNewGearItem,
     sanitizePartialGearItem,
-    isArrayOfGearLists,
 } from '../utils/validators/gearDataValidator.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
@@ -27,7 +26,7 @@ export async function getUserGearLists(req: Request, res: Response) {
             });
         }
 
-        if (!isArrayOfGearLists(lists)) {
+        if (!Array.isArray(lists)) {
             console.error('Gear lists data is corrupted');
             return res.status(500).json({ message: 'Gear list data corrupted' });
         }

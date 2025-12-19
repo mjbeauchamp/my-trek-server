@@ -14,20 +14,6 @@ export function isUserGearItem(item: IGearItemInput) {
     );
 }
 
-export function isArrayOfGearLists(listArray: unknown) {
-    if (!listArray || !Array.isArray(listArray)) {
-        return false;
-    }
-
-    return listArray.every((list: any) => {
-        return (
-            typeof list.listTitle === 'string' &&
-            Array.isArray(list.items) &&
-            list.items.every((item: any) => isUserGearItem(item))
-        );
-    });
-}
-
 export function sanitizeNewGearItem(
     input: unknown,
 ): { success: true; data: IGearItemInput } | { success: false; error: string } {
