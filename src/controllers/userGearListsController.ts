@@ -83,6 +83,14 @@ export async function createGearList(req: Request, res: Response) {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
+        const listCount = await UserGearList.countDocuments({ userId: user._id });
+
+        if (listCount >= 30) {
+            return res.status(409).json({
+                message: 'User has 30 lists, which is the maximum supported number.',
+            });
+        }
+
         const listData = req.body;
 
         const sanitizedList = sanitizeGearList(listData);
@@ -254,14 +262,20 @@ export async function addItemToGearList(req: Request, res: Response) {
         }
 
         const updatedList = await UserGearList.findOneAndUpdate(
-            { _id: listId, userId: user._id },
+            { _id: listId, userId: user._id, $expr: { $lt: [{ $size: '$items' }, 250] } },
             { $push: { items: sanitizedData.data } },
             { new: true },
         );
 
         if (!updatedList) {
-            return res.status(404).json({
-                message: 'Gear list not found',
+            const listExists = await UserGearList.exists({ _id: listId, userId: user._id });
+
+            if (!listExists) {
+                return res.status(404).json({ message: 'Gear list not found' });
+            }
+
+            return res.status(409).json({
+                message: 'This list already has the maximum number of items.',
             });
         }
 
