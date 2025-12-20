@@ -45,8 +45,8 @@ export async function getUserGearListById(req: Request, res: Response) {
 
         if (!listId) return res.status(400).json({ message: 'List ID parameter not received' });
 
-        if (!listId.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({ error: 'Invalid listId' });
+        if (!mongoose.Types.ObjectId.isValid(listId)) {
+            return res.status(400).json({ message: 'Invalid gear list ID' });
         }
 
         const sub = req.auth?.payload.sub;
@@ -56,12 +56,17 @@ export async function getUserGearListById(req: Request, res: Response) {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const list = await UserGearList.findOne({ userId: user._id, _id: listId });
-        // TODO: Deal with it if there's nothing found, or if the data is off or something
+
+        if (!list) {
+            return res.status(404).json({
+                message: 'Gear list not found',
+            });
+        }
 
         res.json(list);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error fetching user gear lists' });
+        console.error('getUserGearListById: Error fetching gear list by list ID', err);
+        res.status(500).json({ message: 'Server error fetching user gear list' });
     }
 }
 
@@ -204,7 +209,10 @@ export async function deleteGearList(req: Request, res: Response) {
             return res.status(400).json({ message: 'Invalid gear list ID' });
         }
 
-        const deletedList = await UserGearList.findByIdAndDelete(listId);
+        const deletedList = await UserGearList.findOneAndDelete({
+            _id: listId,
+            userId: user._id,
+        });
 
         if (!deletedList) {
             return res.status(404).json({ message: 'List not found' });
@@ -342,22 +350,19 @@ export async function deleteItemFromGearList(req: Request, res: Response) {
             return res.status(400).json({ message: 'Invalid database object ID' });
         }
 
-        const result = await UserGearList.updateOne(
-            { _id: listId },
+        const updatedList = await UserGearList.findOneAndUpdate(
+            { _id: listId, userId: user._id },
             { $pull: { items: { _id: itemId } } },
+            { new: true },
         );
 
-        let message = '';
-
-        if (result.modifiedCount === 0) {
-            message = 'No item deleted — maybe list or item not found';
-            console.log('No item deleted — maybe list or item not found');
-        } else {
-            message = 'Item deleted successfully!';
-            console.log('Item deleted successfully!');
+        if (!updatedList) {
+            return res.status(404).json({
+                message: 'Gear list not found',
+            });
         }
 
-        return res.status(200).json({ message });
+        res.json(updatedList);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error deleting item from gear list' });
