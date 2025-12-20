@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 
 // Gear item data sent from frontend
 export interface IGearItemInput {
@@ -15,8 +15,8 @@ export interface IGearItem extends IGearItemInput {
     _id: Types.ObjectId;
 }
 
-export interface IGearList extends Document {
-    userId: Types.ObjectId;
+export interface IGearList {
+    userId: string;
     listTitle: string;
     listDescription?: string;
     items: IGearItem[];

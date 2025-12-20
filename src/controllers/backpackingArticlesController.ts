@@ -5,6 +5,10 @@ export async function getAllArticles(req: Request, res: Response) {
     try {
         const articles = await BackpackingArticle.find();
 
+        if (!articles) {
+            return res.status(404).json({ message: 'Article list not found' });
+        }
+
         if (!Array.isArray(articles)) {
             console.error('Article list data is in an unexpected format');
             return res
@@ -31,7 +35,11 @@ export async function getArticleById(req: Request, res: Response) {
         }
 
         const article = await BackpackingArticle.findOne({ _id: articleId });
-        // TODO: Deal with it if there's nothing found, or if the data is off or something
+
+        if (!article) {
+            return res.status(404).json({ message: 'Article not found' });
+        }
+
         res.json(article);
     } catch (err) {
         console.error(err);

@@ -14,6 +14,63 @@ export function isUserGearItem(item: IGearItemInput) {
     );
 }
 
+export function sanitizeGearList(gearList: unknown) {
+    if (!gearList || typeof gearList !== 'object') {
+        return { success: false, error: 'Invalid gear list payload.' };
+    }
+
+    const list = gearList as Record<string, unknown>;
+
+    // Required: listTitle
+    if (typeof list.listTitle !== 'string') {
+        return { success: false, error: 'Gear list title is required.' };
+    }
+
+    try {
+        const listTitle = validator.trim(list.listTitle);
+        if (!listTitle || listTitle.length > 60) {
+            return { success: false, error: 'List title is invalid or too long.' };
+        }
+
+        // Optional: listDescription
+        let listDescription = '';
+        if (list.listDescription !== undefined) {
+            if (typeof list.listDescription !== 'string') {
+                return { success: false, error: 'Invalid list description format.' };
+            }
+            listDescription = validator.trim(list.listDescription);
+            if (listDescription.length > 250) {
+                return { success: false, error: 'List description is too long.' };
+            }
+        }
+
+        // We should always get an array for list.items. It can be empty, but it should exist
+        if (!list.items || !Array.isArray(list.items)) {
+            return { success: false, error: 'List is missing items array.' };
+        }
+
+        if (list.items.length > 0) {
+            if (!list.items.every((item) => isUserGearItem(item))) {
+                return { success: false, error: 'Gear list items data is formatted incorrectly.' };
+            }
+        }
+
+        return {
+            success: true,
+            data: {
+                listTitle,
+                listDescription,
+                items: list.items,
+            },
+        };
+    } catch (err) {
+        return {
+            success: false,
+            error: err instanceof Error ? err.message : 'Invalid gear item field',
+        };
+    }
+}
+
 export function sanitizeNewGearItem(
     input: unknown,
 ): { success: true; data: IGearItemInput } | { success: false; error: string } {
@@ -29,7 +86,7 @@ export function sanitizeNewGearItem(
     }
 
     try {
-        const name = validator.escape(validator.trim(item.name));
+        const name = validator.trim(item.name);
         if (!name || name.length > 60) {
             return { success: false, error: 'Item name is invalid or too long.' };
         }
@@ -40,7 +97,7 @@ export function sanitizeNewGearItem(
             if (typeof item.category !== 'string') {
                 return { success: false, error: 'Invalid category format.' };
             }
-            category = validator.escape(validator.trim(item.category));
+            category = validator.trim(item.category);
             if (category.length > 300) {
                 return { success: false, error: 'Gear item category is too long.' };
             }
@@ -52,7 +109,7 @@ export function sanitizeNewGearItem(
             if (typeof item.notes !== 'string') {
                 return { success: false, error: 'Invalid gear item note format.' };
             }
-            notes = validator.escape(validator.trim(item.notes));
+            notes = validator.trim(item.notes);
             if (notes.length > 500) {
                 return { success: false, error: 'Gear item note is too long.' };
             }
@@ -110,7 +167,7 @@ export function sanitizePartialGearItem(
             if (typeof item.name !== 'string') {
                 return { success: false, error: 'Item name format is invalid.' };
             }
-            const name = validator.escape(validator.trim(item.name));
+            const name = validator.trim(item.name);
 
             if (!name || name.length > 60) {
                 return { success: false, error: 'Item name is invalid or too long.' };
@@ -123,7 +180,7 @@ export function sanitizePartialGearItem(
             if (typeof item.category !== 'string') {
                 return { success: false, error: 'Category format is invalid.' };
             }
-            const category = validator.escape(validator.trim(item.category));
+            const category = validator.trim(item.category);
 
             if (category.length > 300) {
                 return { success: false, error: 'Gear item category is too long.' };
@@ -136,7 +193,7 @@ export function sanitizePartialGearItem(
             if (typeof item.notes !== 'string') {
                 return { success: false, error: 'Notes format is invalid.' };
             }
-            const notes = validator.escape(validator.trim(item.notes));
+            const notes = validator.trim(item.notes);
 
             if (notes.length > 500) {
                 return { success: false, error: 'Gear item note is too long.' };

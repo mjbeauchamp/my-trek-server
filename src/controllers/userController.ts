@@ -25,7 +25,7 @@ export async function getOrCreateUser(req: Request, res: Response) {
                 console.warn(`User name length invalid: name=${name}`);
                 return res.status(400).json({ message: 'Name too long' });
             }
-            const normalizedName = validator.escape(validator.trim(name));
+            const normalizedName = validator.trim(name);
             if (normalizedName) updateData.name = normalizedName;
         }
 

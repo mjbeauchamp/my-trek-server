@@ -4,10 +4,11 @@ import validator from 'validator';
 
 import User from '../models/User.js';
 import UserGearList from '../models/UserGearList.js';
-import { IGearItemInput } from '../models/UserGearList.js';
+import { IGearList } from '../models/UserGearList.js';
 import {
     sanitizeNewGearItem,
     sanitizePartialGearItem,
+    sanitizeGearList,
 } from '../utils/validators/gearDataValidator.js';
 
 export async function getUserGearLists(req: Request, res: Response) {
@@ -73,33 +74,35 @@ export async function createGearList(req: Request, res: Response) {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const userId = user._id?.toString();
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        if (!userId || typeof userId !== 'string' || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
-        const { listTitle, listDescription, items } = req.body;
+        const listData = req.body;
 
-        //TODO: Validate all data before use
+        const sanitizedList = sanitizeGearList(listData);
 
-        const newList: Partial<{
-            userId: string;
-            listTitle: string;
-            listDescription?: string;
-            items: IGearItemInput[];
-        }> = {
-            userId,
-            listTitle,
-            listDescription,
-            items: [],
-        };
-
-        if (items && Array.isArray(items)) {
-            newList.items = items;
-        } else {
-            newList.items = [];
+        if (!sanitizedList.success || !sanitizedList.data) {
+            console.warn(`createGearList: Gear list data was invalid: `, sanitizedList.error);
+            return res.status(400).json({
+                message: `There was a problem creating this gear list: ${sanitizedList.error}`,
+            });
         }
 
+        const newList: IGearList = {
+            userId,
+            listTitle: sanitizedList.data.listTitle,
+            listDescription: sanitizedList.data.listDescription,
+            items: sanitizedList.data.items,
+        };
+
         const newGearList = await UserGearList.create(newList);
+
+        if (!newGearList) {
+            return res.status(404).json({
+                message: 'There was an issue creating gear list. Gear list not found',
+            });
+        }
 
         const gearListData = {
             listTitle: newGearList.listTitle,
@@ -147,7 +150,7 @@ export async function updateGearListMetadata(req: Request, res: Response) {
             console.warn(`List title length invalid: length=${listTitle.length}`);
             return res.status(400).json({ message: 'List title too long' });
         }
-        const normalizedListTitle = validator.escape(validator.trim(listTitle));
+        const normalizedListTitle = validator.trim(listTitle);
 
         if (!normalizedListTitle) {
             console.warn(`List title format invalid: listTitle=${listTitle}`);
@@ -166,7 +169,7 @@ export async function updateGearListMetadata(req: Request, res: Response) {
                 console.warn(`List description length invalid: length=${listDescription.length}`);
                 return res.status(400).json({ message: 'List description too long' });
             }
-            const normalizedListDescription = validator.escape(validator.trim(listDescription));
+            const normalizedListDescription = validator.trim(listDescription);
             updateData.listDescription = normalizedListDescription ? normalizedListDescription : '';
         }
 
