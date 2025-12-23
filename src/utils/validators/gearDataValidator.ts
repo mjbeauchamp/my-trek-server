@@ -116,11 +116,16 @@ export function sanitizeNewGearItem(
         }
 
         // Numeric fields
-        const sanitizeQuantity = (value: unknown, field: string) => {
+        const sanitizeQuantity = (
+            value: unknown,
+            field: 'quantityNeeded' | 'quantityToPack' | 'quantityToShop',
+        ) => {
             if (typeof value !== 'number' || !Number.isInteger(value)) {
                 throw new Error(`${field} must be an integer`);
             }
 
+            // Quantity needed should always be at least 1
+            // Items to pack or shop can be 0
             const minValue = field === 'quantityNeeded' ? 1 : 0;
 
             if (value < minValue || value > 1000) {
@@ -153,7 +158,7 @@ export function sanitizeNewGearItem(
 }
 
 // Sanitize incoming 'update gear item' data.
-// Update data might not include all item fields.
+// Update data might not include all gear item fields.
 // Empty strings for non-required fields should be honored as new data values.
 export function sanitizePartialGearItem(
     input: unknown,
