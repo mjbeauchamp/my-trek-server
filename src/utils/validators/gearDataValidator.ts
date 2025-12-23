@@ -152,6 +152,9 @@ export function sanitizeNewGearItem(
     }
 }
 
+// Sanitize incoming 'update gear item' data.
+// Update data might not include all item fields.
+// Empty strings for non-required fields should be honored as new data values.
 export function sanitizePartialGearItem(
     input: unknown,
 ): { success: true; data: Partial<IGearItemInput> } | { success: false; error: string } {

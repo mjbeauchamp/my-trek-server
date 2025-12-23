@@ -1,6 +1,4 @@
 import express from 'express';
-import mongoSanitize from 'express-mongo-sanitize';
-
 import { connectDB } from './database/db.js';
 import commonGearRoutes from './routes/commonGear.js';
 import backpackingArticlesRoutes from './routes/backpackingArticles.js';
@@ -16,19 +14,21 @@ interface AppError extends Error {
 
 dotenv.config();
 
+const requiredEnv = ['FRONTEND_URL', 'AUTH0_AUDIENCE', 'AUTH0_DOMAIN'];
+
+for (const key of requiredEnv) {
+    if (!process.env[key]) {
+        throw new Error(`Missing required env var: ${key}`);
+    }
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-const allowedOrigin =
-    process.env.NODE_ENV === 'development'
-        ? process.env.FRONTEND_URL
-        : process.env.PROD_FRONTEND_URL;
-
 app.use(
     cors({
-        origin: allowedOrigin,
+        origin: process.env.FRONTEND_URL,
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        credentials: true,
     }),
 );
 
@@ -40,15 +40,6 @@ const jwtCheck = auth({
 });
 
 app.use(express.json());
-app.use((req, res, next) => {
-    if (req.body) {
-        mongoSanitize.sanitize(req.body);
-    }
-    if (req.params) {
-        mongoSanitize.sanitize(req.params);
-    }
-    next();
-});
 
 app.use('/api/user', jwtCheck, userRoutes);
 
@@ -57,6 +48,14 @@ app.use('/api/gear-lists', jwtCheck, userGearLists);
 app.use('/api/commonGear', commonGearRoutes);
 
 app.use('/api/backpacking-articles', backpackingArticlesRoutes);
+
+app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
+app.use((_req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
 
 app.use(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
