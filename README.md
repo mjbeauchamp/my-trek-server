@@ -2,7 +2,7 @@
 
 Backend for **Trek List**, a backpacking checklist application. Users can create multiple gear checklists, and manage items in each checklist. They can also access a list of informational backpacking articles.
 
-**Note:** Some sections of the app use placeholder Lorem Ipsum text and images. This is a portfolio project, so content may be minimal or illustrative rather than fully built out.
+**Note:** Some sections of the app use placeholder Lorem Ipsum text and placeholder images. This is a portfolio project, so content may be minimal or illustrative rather than fully built out.
 
 ---
 
@@ -11,8 +11,8 @@ Backend for **Trek List**, a backpacking checklist application. Users can create
 - **User Authentication** – Secure login using Auth0.
 - **Gear Checklists** – Create, update, and delete multiple checklists.
 - **Item Management** – Add, edit, or remove items in each checklist.
-- **Common Gear** – Quickly select frequently used gear from a predefined list.
-- **Backpacking Articles** – Browse curated content for safe and responsible trekking.
+- **Common Gear** – Select frequently used gear from a predefined list.
+- **Backpacking Articles** – Browse curated content to learn more about safe and responsible trekking.
 
 ---
 
@@ -79,31 +79,31 @@ The server should start and automatically connect to your MongoDB instance.
 
 ### User
 
-- **POST** `/api/user` – Create or sync user profile.
+**POST** `/api/user` – Create or sync user profile. (No user data currently required for client functionality, so user not returned.)
 
-### Gear Lists
+### Gear Lists - AUTHENTICATED ROUTES
 
-- **GET** `/api/gear-lists` – Fetch all gear lists for authenticated user.
-- **GET** `/api/gear-lists/gear-list/:listId` – Fetch gear list by ID.
-- **POST** `/api/gear-lists/gear-list` – Create a new gear list.
-- **PUT** `/api/gear-lists/gear-list/:listId` – Update gear list metadata.
-- **DELETE** `/api/gear-lists/gear-list/:listId` – Delete a gear list.
+**GET** `/api/gear-lists` – Fetch all gear lists for authenticated user.
+**GET** `/api/gear-lists/gear-list/:listId` – Fetch gear list by list ID.
+**POST** `/api/gear-lists/gear-list` – Create a new gear list.
+**PUT** `/api/gear-lists/gear-list/:listId` – Update gear list metadata (list title, etc).
+**DELETE** `/api/gear-lists/gear-list/:listId` – Delete a gear list.
 
-### Gear List Items
+### Gear List Items - AUTHENTICATED ROUTES
 
-- **POST** `/api/gear-lists/gear-list/:listId/items` – Add a new item.
-- **PUT** `/api/gear-lists/gear-list/:listId/items/:itemId` – Update an item.
-- **DELETE** `/api/gear-lists/gear-list/:listId/items/:itemId` – Delete an item.
+**POST** `/api/gear-lists/gear-list/:listId/items` – Add a new item.
+**PUT** `/api/gear-lists/gear-list/:listId/items/:itemId` – Update an item.
+**DELETE** `/api/gear-lists/gear-list/:listId/items/:itemId` – Delete an item.
 
 ### Common Gear
 
-- **GET** `/api/commonGear` – Fetch predefined common gear items.
+**GET** `/api/commonGear` – Fetch predefined common gear items.
 
 ### Articles
 
-- **GET** `/api/backpacking-articles` – Fetch backpacking articles.
-- **GET** `/api/backpacking-articles/:articleId` – Fetch individual article by ID.
+**GET** `/api/backpacking-articles` – Fetch backpacking articles.
+**GET** `/api/backpacking-articles/:articleId` – Fetch individual article by ID.
 
 ### Health Check
 
-- **GET** `/health` – Returns server status.
+**GET** `/health` – Returns server status.
