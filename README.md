@@ -79,31 +79,31 @@ The server should start and automatically connect to your MongoDB instance.
 
 ### User
 
-**POST** `/api/user` – Create or sync user profile. (No user data currently required for client functionality, so user not returned.)
+- **POST** `/api/user` – Create or sync user profile. (No user data currently required for client functionality, so user not returned.)
 
 ### Gear Lists - AUTHENTICATED ROUTES
 
-**GET** `/api/gear-lists` – Fetch all gear lists for authenticated user.
-**GET** `/api/gear-lists/gear-list/:listId` – Fetch gear list by list ID.
-**POST** `/api/gear-lists/gear-list` – Create a new gear list.
-**PUT** `/api/gear-lists/gear-list/:listId` – Update gear list metadata (list title, etc).
-**DELETE** `/api/gear-lists/gear-list/:listId` – Delete a gear list.
+- **GET** `/api/gear-lists` – Fetch all gear lists for authenticated user.
+- **GET** `/api/gear-lists/gear-list/:listId` – Fetch gear list by list ID.
+- **POST** `/api/gear-lists/gear-list` – Create a new gear list.
+- **PUT** `/api/gear-lists/gear-list/:listId` – Update gear list metadata (list title, etc).
+- **DELETE** `/api/gear-lists/gear-list/:listId` – Delete a gear list.
 
 ### Gear List Items - AUTHENTICATED ROUTES
 
-**POST** `/api/gear-lists/gear-list/:listId/items` – Add a new item.
-**PUT** `/api/gear-lists/gear-list/:listId/items/:itemId` – Update an item.
-**DELETE** `/api/gear-lists/gear-list/:listId/items/:itemId` – Delete an item.
+- **POST** `/api/gear-lists/gear-list/:listId/items` – Add a new item.
+- **PUT** `/api/gear-lists/gear-list/:listId/items/:itemId` – Update an item.
+- **DELETE** `/api/gear-lists/gear-list/:listId/items/:itemId` – Delete an item.
 
 ### Common Gear
 
-**GET** `/api/commonGear` – Fetch predefined common gear items.
+- **GET** `/api/commonGear` – Fetch predefined common gear items.
 
 ### Articles
 
-**GET** `/api/backpacking-articles` – Fetch backpacking articles.
-**GET** `/api/backpacking-articles/:articleId` – Fetch individual article by ID.
+- **GET** `/api/backpacking-articles` – Fetch backpacking articles.
+- **GET** `/api/backpacking-articles/:articleId` – Fetch individual article by ID.
 
 ### Health Check
 
-**GET** `/health` – Returns server status.
+- **GET** `/health` – Returns server status.
