@@ -51,13 +51,12 @@ export async function getOrCreateUser(req: Request, res: Response) {
         );
 
         if (!user) {
-            return res
-                .status(404)
-                .json({ message: 'There was an issue creating or fetching user' });
+            return res.status(500).json({ message: 'Failed to create or fetch user' });
         }
 
-        // Don't currently need the DB user object in the client, so sending 204
-        res.sendStatus(204);
+        // NOTE: We don't currently need the database user object in the client, so we just send
+        // a success message without the user data.
+        res.json({ message: 'User successfully synced' });
     } catch (err) {
         console.error('Error creating or updating user: ', err);
         res.status(500).json({ message: 'Server error fetching user' });

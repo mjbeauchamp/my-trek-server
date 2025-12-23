@@ -11,6 +11,8 @@ import {
     sanitizeGearList,
 } from '../utils/validators/gearDataValidator.js';
 
+// GEAR LIST CONTROLLERS - Each userGearList document contains the gear list's metadata (listTitle, etc.),
+// and also an 'items' array that contains gear items.
 export async function getUserGearLists(req: Request, res: Response) {
     try {
         const sub = req.auth?.payload.sub;
@@ -28,8 +30,8 @@ export async function getUserGearLists(req: Request, res: Response) {
         }
 
         if (!Array.isArray(lists)) {
-            console.error('Gear lists data is corrupted');
-            return res.status(500).json({ message: 'Gear list data corrupted' });
+            console.error('Gear lists data is improperly formatted');
+            return res.status(500).json({ message: 'Gear list data is improperly formatted.' });
         }
 
         res.json(lists);
@@ -232,6 +234,9 @@ export async function deleteGearList(req: Request, res: Response) {
         res.status(500).json({ message: 'Server error when deleting gear list' });
     }
 }
+
+// GEAR LIST 'ITEMS' CONTROLLERS - Create, update, and delete items in a userGearList's 'items' array.
+// These are the list items that are displayed to the end user on the gear list details page.
 
 export async function addItemToGearList(req: Request, res: Response) {
     try {

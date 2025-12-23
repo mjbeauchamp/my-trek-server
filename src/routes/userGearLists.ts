@@ -12,8 +12,8 @@ import {
 
 const router = Router();
 
-// GEAR LIST ROUTES - Each userGearList document contains the gear list's metadata (listTitle, etc.)
-// and an 'items' array that contains gear items.
+// GEAR LIST ROUTES - Each userGearList document contains the gear list's metadata (listTitle, etc.),
+// and also an 'items' array that contains gear items.
 
 router.get('/', getUserGearLists);
 
@@ -26,7 +26,7 @@ router.put('/gear-list/:listId', updateGearListMetadata);
 router.delete('/gear-list/:listId', deleteGearList);
 
 // GEAR LIST 'ITEMS' ROUTES - Create, update, and delete items in a userGearList's 'items' array.
-// These are the list items that are displayed to the user on the gear list details page.
+// These are the list items that are displayed to the end user on the gear list details page.
 
 router.post('/gear-list/:listId/items', addItemToGearList);
 
