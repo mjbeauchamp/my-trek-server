@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import BackpackingArticle from '../models/BackpackingArticle.js';
 
 export async function getAllArticles(req: Request, res: Response) {
@@ -27,11 +28,8 @@ export async function getArticleById(req: Request, res: Response) {
     try {
         const { articleId } = req.params;
 
-        if (!articleId)
-            return res.status(400).json({ message: 'Article ID parameter not received' });
-
-        if (!articleId.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({ error: 'Invalid listId' });
+        if (!mongoose.Types.ObjectId.isValid(articleId)) {
+            return res.status(400).json({ message: 'Invalid article ID' });
         }
 
         const article = await BackpackingArticle.findOne({ _id: articleId });
