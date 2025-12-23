@@ -1,6 +1,6 @@
 # TREK LIST SERVER
 
-Backend for **Trek List**, a backpacking checklist application. Users can create multiple gear checklists, and manage items in each checklist. They can also access a list of informational backpacking articles.
+Backend for **Trek List**, a backpacking checklist application. Users can create multiple gear checklists, and manage items in each checklist. They can also access a list of informational backpacking articles. This is a portfolio project demonstrating modern Node.js/Express development practices integration with a React client.
 
 **Client Repository:** [Trek List Client Repository](https://github.com/mjbeauchamp/my-trek-client)
 
