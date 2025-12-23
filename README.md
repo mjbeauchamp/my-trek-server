@@ -2,6 +2,8 @@
 
 Backend for **Trek List**, a backpacking checklist application. Users can create multiple gear checklists, and manage items in each checklist. They can also access a list of informational backpacking articles.
 
+**Client Repository:** [Trek List Client Repository](https://github.com/mjbeauchamp/my-trek-client)
+
 **Note:** Some sections of the app use placeholder Lorem Ipsum text and placeholder images. This is a portfolio project, so content may be minimal or illustrative rather than fully built out.
 
 ---
